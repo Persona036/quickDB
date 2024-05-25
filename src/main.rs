@@ -68,13 +68,22 @@ fn handle_command(command: &str, tables: &mut BTreeMap<String, Table>) -> String
                 return "Usage: select <table_name> <column>".to_string();
             }
             let table_name = parts[1].to_string();
-            if let Some(table) = tables.get(&table_name) {
-                let mut result = String::new();
 
-                for (col_name, col_data) in &table.columns {
-                    result.push_str(&format!("{}: {:?}\n", col_name, col_data));
+            if let Some(table) = tables.get(&table_name) {
+                if parts.len() == 3 {
+                    let column_name = parts[2].to_string();
+                    if let Some(col_data) = table.columns.get(&column_name) {
+                        format!("{}: {:?}\n", column_name, col_data)
+                    } else {
+                        format!("Column {} not found in table {}", column_name, table_name)
+                    }
+                } else {
+                    let mut result = String::new();
+                    for (col_name, col_data) in &table.columns {
+                        result.push_str(&format!("{}: {:?}\n", col_name, col_data));
+                    }
+                    result
                 }
-                result
             } else {
                 format!("Table {} not found", table_name)
             }
